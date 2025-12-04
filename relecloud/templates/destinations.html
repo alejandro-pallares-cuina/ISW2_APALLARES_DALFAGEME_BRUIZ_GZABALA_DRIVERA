@@ -9,9 +9,12 @@
 
     <ul class="list-group">
         {% for destination in destinations %}
-            <li class = "list-group-item list-group-item-action" href="{% url 'destination_detail' destination.id %}">
+            <a 
+                class="list-group-item list-group-item-action"
+                href="{% url 'destination_detail' destination.id %}"
+            >
                 {{ destination.name }}
-            </li>
+            </a>
         {% endfor %}
     </ul>
 
