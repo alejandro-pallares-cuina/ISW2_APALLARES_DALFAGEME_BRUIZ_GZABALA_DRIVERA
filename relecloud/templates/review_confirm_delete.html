@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    Delete Review
+{% endblock title %}
+
+{% block content %}
+    <h1>Delete Review</h1>
+
+    <p>Are you sure you want to delete this review?</p>
+
+    <ul>
+        <li>Rating: {{ review.rating }}⭐</li>
+        {% if review.title %}
+            <li>Title: {{ review.title }}</li>
+        {% endif %}
+        {% if review.comment %}
+            <li>Comment: {{ review.comment }}</li>
+        {% endif %}
+    </ul>
+
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Yes, delete</button>
+        {% if review.destination %}
+            <a href="{% url 'destination_detail' review.destination.id %}" class="btn btn-secondary">Cancel</a>
+        {% elif review.cruise %}
+            <a href="{% url 'cruise_detail' review.cruise.id %}" class="btn btn-secondary">Cancel</a>
+        {% else %}
+            <a href="{% url 'index' %}" class="btn btn-secondary">Cancel</a>
+        {% endif %}
+    </form>
+{% endblock content %}
