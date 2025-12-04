@@ -1,6 +1,12 @@
 from django.contrib import admin
-from . import models
+from .models import Destination, Review
 
-# Register your models here.
+@admin.register(Destination)
+class DestinationAdmin(admin.ModelAdmin):
+    list_display = ("name",)
 
-admin.site.register(models.Destination)
+@admin.register(Review)
+class ReviewAdmin(admin.ModelAdmin):
+    list_display = ("user", "destination", "rating", "title", "created_at")
+    list_filter = ("destination", "rating")
+    search_fields = ("title", "comment", "user__username")

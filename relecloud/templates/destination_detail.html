@@ -25,9 +25,13 @@
 
     <h2>Reviews</h2>
 
-    {% if destination.reviews.all %}
+    {% if avg_rating %}
+        <p><strong>Valoración media:</strong> {{ avg_rating|floatformat:1 }} / 5</p>
+    {% endif %}
+
+    {% if reviews %}
         <ul class="list-group mt-3">
-            {% for review in destination.reviews.all %}
+            {% for review in reviews %}
                 <li class="list-group-item">
                     <div>
                         <strong>{{ review.user.username }}</strong>
@@ -59,6 +63,23 @@
         </ul>
     {% else %}
         <p class="mt-3">No hay reviews todavía para este destino.</p>
+    {% endif %}
+
+    <hr>
+
+    {% if can_review %}
+        <h3>Escribe tu review</h3>
+        <form method="post" action="{% url 'destination_review_create' destination.id %}">
+            {% csrf_token %}
+            {{ review_form.as_p }}
+            <button type="submit" class="btn btn-success">Enviar review</button>
+        </form>
+    {% else %}
+        {% if user.is_authenticated %}
+            <p class="mt-3">No puedes crear una review para este destino (se requiere haber comprado).</p>
+        {% else %}
+            <p class="mt-3">Debes iniciar sesión para crear una review.</p>
+        {% endif %}
     {% endif %}
 
 {% endblock content %}
