@@ -31,10 +31,24 @@ class CruiseDetailView(generic.DetailView):
 
 class InfoRequestCreate(SuccessMessageMixin, generic.CreateView):
     template_name = 'info_request_create.html'
-    model = models. InfoRequest
+    model = models.InfoRequest
     fields = ['name', 'email', 'cruise', 'notes']
     success_url = reverse_lazy('index')
     success_message = 'Thank you, %(name)s! We will email you when we have more information about %(cruise)s!'
+
+    def get_form(self, form_class=None):
+        """Customize form labels and help text."""
+        form = super().get_form(form_class)
+        form.fields['name'].label = 'Full Name'
+        form.fields['name'].help_text = 'Your full name'
+        form.fields['email'].label = 'Email Address'
+        form.fields['email'].help_text = 'We will send a confirmation to this email'
+        form.fields['cruise'].label = 'Cruise'
+        form.fields['cruise'].help_text = 'Select the cruise you are interested in'
+        form.fields['notes'].label = 'Additional Notes'
+        form.fields['notes'].help_text = 'Any additional information or questions (optional)'
+        form.fields['notes'].required = False
+        return form
 
     def form_valid(self, form):
         """Handle form submission: save and send confirmation email."""
