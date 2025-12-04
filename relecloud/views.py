@@ -3,6 +3,7 @@ from django.urls import reverse_lazy
 from . import models
 from django.views import generic
 from django.contrib.messages.views import SuccessMessageMixin
+from .email_service import send_info_request_email
 
 # Create your views here.
 # Http response se encarga de evolver una petición
@@ -35,5 +36,13 @@ class InfoRequestCreate(SuccessMessageMixin, generic.CreateView):
     success_url = reverse_lazy('index')
     success_message = 'Thank you, %(name)s! We will email you when we have more information about %(cruise)s!'
 
-#def index(request):    
-    #return HttpResponse("Hello world!")
+    def form_valid(self, form):
+        """Handle form submission: save and send confirmation email."""
+        response = super().form_valid(form)
+        # Send confirmation email to the requester
+        send_info_request_email(
+            to_email=form.cleaned_data['email'],
+            name=form.cleaned_data['name'],
+            cruise=str(form.cleaned_data['cruise'])
+        )
+        return response
