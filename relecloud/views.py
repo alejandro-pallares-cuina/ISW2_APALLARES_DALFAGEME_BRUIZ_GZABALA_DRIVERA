@@ -6,6 +6,19 @@ from django.contrib.messages.views import SuccessMessageMixin
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseForbidden
 
+def user_has_purchase(user):
+    """
+    T4: Implementar restricción de compra.
+
+    ⚠️ Versión simplificada para esta práctica:
+    - Consideramos que el usuario con username 'buyer' es comprador.
+    - El resto NO tienen compra.
+
+    En una versión más avanzada, aquí se comprobaría una tabla de compras,
+    reservas, etc.
+    """
+    return user.username == "buyer"
+
 
 def index(request):
     return render(request, 'index.html')
@@ -44,11 +57,19 @@ class InfoRequestCreate(SuccessMessageMixin, generic.CreateView):
 def create_destination_review(request, destination_id):
     """
     CREATE: crea una review para un Destination concreto.
-    Más adelante (T4) se añadirá la restricción de 'solo compradores'.
+
+    T4: Restricción para Reviews:
+    - Usuario registrado y con compra -> puede crear review
+    - Resto -> creación denegada (403)
     """
     destination = get_object_or_404(models.Destination, pk=destination_id)
 
     if request.method == "POST":
+        # 🔒 Restricción de compra (T4)
+        if not user_has_purchase(request.user):
+            # Usuario autenticado PERO sin compra -> 403 Forbidden
+            return HttpResponseForbidden("You are not allowed to create a review for this destination.")
+
         rating = request.POST.get("rating")
         title = request.POST.get("title", "")
         comment = request.POST.get("comment", "")
@@ -62,10 +83,11 @@ def create_destination_review(request, destination_id):
                 comment=comment,
             )
 
+        # Redirigimos al detalle del destino (302)
         return redirect('destination_detail', pk=destination_id)
 
+    # Si no es POST, redirigimos también al detalle
     return redirect('destination_detail', pk=destination_id)
-
 
 @login_required
 def update_review(request, review_id):
