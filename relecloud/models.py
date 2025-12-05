@@ -14,6 +14,13 @@ class Destination(models.Model):
         max_length=2000,
         null=False,
         blank=False
+    ) 
+
+    #Nuevo campo para la imagen
+    image = models.ImageField(
+        upload_to="destinations/",
+        null=True,
+        blank=True
     )
 
     def __str__(self):

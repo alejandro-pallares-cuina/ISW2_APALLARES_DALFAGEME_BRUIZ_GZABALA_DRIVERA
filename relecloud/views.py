@@ -8,6 +8,7 @@ from django.http import HttpResponseForbidden
 from django.db.models import Avg
 
 from .forms import ReviewForm
+from .email_service import send_info_request_email
 
 
 def index(request):
@@ -162,3 +163,27 @@ def delete_review(request, review_id):
         "review": review,
     }
     return render(request, "review_confirm_delete.html", context)
+    def get_form(self, form_class=None):
+        """Customize form labels and help text."""
+        form = super().get_form(form_class)
+        form.fields['name'].label = 'Full Name'
+        form.fields['name'].help_text = 'Your full name'
+        form.fields['email'].label = 'Email Address'
+        form.fields['email'].help_text = 'We will send a confirmation to this email'
+        form.fields['cruise'].label = 'Cruise'
+        form.fields['cruise'].help_text = 'Select the cruise you are interested in'
+        form.fields['notes'].label = 'Additional Notes'
+        form.fields['notes'].help_text = 'Any additional information or questions (optional)'
+        form.fields['notes'].required = False
+        return form
+
+    def form_valid(self, form):
+        """Handle form submission: save and send confirmation email."""
+        response = super().form_valid(form)
+        # Send confirmation email to the requester
+        send_info_request_email(
+            to_email=form.cleaned_data['email'],
+            name=form.cleaned_data['name'],
+            cruise=str(form.cleaned_data['cruise'])
+        )
+        return response
