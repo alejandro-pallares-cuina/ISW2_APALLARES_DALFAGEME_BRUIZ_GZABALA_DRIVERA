@@ -1,22 +1,89 @@
 {% extends 'base.html' %}
 
 {% block title %}
-    Relecloud - {{ destination }}
+    Relecloud - {{ destination}}
 {% endblock title %}
 
 {% block content %}
     <h1>{{ destination }}</h1>
 
+    {% if destination.image %}
+        <img src="{{ destination.image.url }}" alt="Image of {{ destination }}" class="img-fluid mb-3">
+    {% endif %}
+
     <p>
-        {{ destination. description }}
+        {{ destination.description }}
     </p>
 
     <p>You can explore {{ destination }} on the following cruises: </p>
 
-    <ul class="list-group">
+    <ul class="list-group mb-4">
         {% for cruise in destination.cruises.all %}
-            <a class = "list-group-item list-group-item-action" href="{% url 'cruise_detail' cruise.id %}">{{ cruise }}</a>
+            <a class="list-group-item list-group-item-action" href="{% url 'cruise_detail' cruise.id %}">
+                {{ cruise }}
+            </a>
         {% endfor %}
     </ul>
+
+    <hr>
+
+    <h2>Reviews</h2>
+
+    {% if avg_rating %}
+        <p><strong>Valoración media:</strong> {{ avg_rating|floatformat:1 }} / 5</p>
+    {% endif %}
+
+    {% if reviews %}
+        <ul class="list-group mt-3">
+            {% for review in reviews %}
+                <li class="list-group-item">
+                    <div>
+                        <strong>{{ review.user.username }}</strong>
+                        - {{ review.rating }}⭐
+                    </div>
+
+                    {% if review.title %}
+                        <div><em>{{ review.title }}</em></div>
+                    {% endif %}
+
+                    {% if review.comment %}
+                        <p>{{ review.comment }}</p>
+                    {% endif %}
+
+                    <small>{{ review.created_at }}</small>
+
+                    {% if user.is_authenticated and review.user_id == user.id %}
+                        <div class="mt-2">
+                            <a href="{% url 'review_update' review.id %}" class="btn btn-sm btn-primary">
+                                Edit
+                            </a>
+                            <a href="{% url 'review_delete' review.id %}" class="btn btn-sm btn-danger">
+                                Delete
+                            </a>
+                        </div>
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p class="mt-3">No hay reviews todavía para este destino.</p>
+    {% endif %}
+
+    <hr>
+
+    {% if can_review %}
+        <h3>Escribe tu review</h3>
+        <form method="post" action="{% url 'destination_review_create' destination.id %}">
+            {% csrf_token %}
+            {{ review_form.as_p }}
+            <button type="submit" class="btn btn-success">Enviar review</button>
+        </form>
+    {% else %}
+        {% if user.is_authenticated %}
+            <p class="mt-3">No puedes crear una review para este destino (se requiere haber comprado).</p>
+        {% else %}
+            <p class="mt-3">Debes iniciar sesión para crear una review.</p>
+        {% endif %}
+    {% endif %}
 
 {% endblock content %}

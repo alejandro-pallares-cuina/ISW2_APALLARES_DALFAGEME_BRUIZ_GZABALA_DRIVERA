@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -31,6 +32,14 @@ CSRF_TRUSTED_ORIGINS = [
     "https://relecloudpallas-btdha4e6e5epcfea.spaincentral-01.azurewebsites.net",
 ]
 
+# Email configuration - Gmail SMTP for sending real emails
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'is2prueba67@gmail.com'
+EMAIL_HOST_PASSWORD = '1234asdf@'
+DEFAULT_FROM_EMAIL = 'is2prueba67@gmail.com'
 
 # Application definition
 
@@ -134,6 +143,9 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 
 STATICFILES_DIRS = [BASE_DIR / "res"]
 
+#STATICFILES_DIRS += [BASE_DIR / "static"]
+
+
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 # Default primary key field type
@@ -143,3 +155,8 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap4"
 CRISPY_TEMPLATE_PACK = "bootstrap4"
+
+# Media files settings
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+

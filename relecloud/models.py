@@ -1,6 +1,10 @@
 from django.db import models
+from django.db.models import F, Value, FloatField, ExpressionWrapper
+from django.db.models.functions import Coalesce
+from django.conf import settings
+from django.core.validators import MinValueValidator, MaxValueValidator
 
-# Create your models here.
+
 class Destination(models.Model):
     name = models.CharField(
         unique=True,
@@ -13,9 +17,33 @@ class Destination(models.Model):
         null=False,
         blank=False
     ) 
+
+    #Nuevo campo para la imagen
+    image = models.ImageField(
+        upload_to="destinations/",
+        null=True,
+        blank=True
+    )
+
     def __str__(self):
         return self.name
-    
+
+
+def popularity_score_expression(reviews_count_field='reviews_count', avg_rating_field='avg_rating'):
+    """
+    Devuelve una ExpressionWrapper que calcula métrica de popularidad:
+    popularity = reviews_count * 0.6 + avg_rating * 0.4
+
+    Se usa con `annotate(reviews_count=Count('reviews'), avg_rating=Avg('reviews__rating'))`
+    y luego `annotate(popularity_score=popularity_score_expression())`.
+    """
+    return ExpressionWrapper(
+        F(reviews_count_field) * Value(0.6) + Coalesce(F(avg_rating_field), Value(0.0)) * Value(0.4),
+        output_field=FloatField()
+    )
+
+
+
 class Cruise(models.Model):
     name = models.CharField(
         unique=True,
@@ -32,8 +60,10 @@ class Cruise(models.Model):
         Destination,
         related_name='cruises'
     )
+
     def __str__(self):
         return self.name
+
 
 class InfoRequest(models.Model):
     name = models.CharField(
@@ -51,3 +81,56 @@ class InfoRequest(models.Model):
         Cruise,
         on_delete=models.PROTECT
     )
+
+
+class Review(models.Model):
+    """
+    Review de un usuario sobre un Destination o un Cruise.
+    """
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="reviews",
+    )
+
+    destination = models.ForeignKey(
+        Destination,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="reviews",
+    )
+
+    cruise = models.ForeignKey(
+        Cruise,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="reviews",
+    )
+
+    title = models.CharField(
+        max_length=200,
+        blank=True,
+    )
+
+    rating = models.PositiveSmallIntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(5)],
+    )
+
+    comment = models.TextField(
+        blank=True,
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+    )
+
+    class Meta:
+        verbose_name = "Review"
+        verbose_name_plural = "Reviews"
+
+    def __str__(self):
+        target = self.destination or self.cruise
+        return f"Review de {self.user} sobre {target} ({self.rating}⭐)"

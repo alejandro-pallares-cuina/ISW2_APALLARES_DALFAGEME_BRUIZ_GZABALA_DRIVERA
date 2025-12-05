@@ -6,6 +6,20 @@ Relecloud
 
 {% block content %}
 We are the premier space travel company. We have a scheduled first landing on Mars. A once in a lifetime experience you certainly don't want to miss!
+
+{% if destinations %}
+    <h2>Top destinations</h2>
+    <ul class="list-group">
+        {% for destination in destinations %}
+            <a class="list-group-item list-group-item-action" href="{% url 'destination_detail' destination.id %}">
+                {{ forloop.counter }}. {{ destination.name }}
+                {% if destination.popularity_score is not None %}
+                    - {{ destination.popularity_score|floatformat:2 }}
+                {% endif %}
+            </a>
+        {% endfor %}
+    </ul>
+{% endif %}
 {% endblock content %}
 
 <!--

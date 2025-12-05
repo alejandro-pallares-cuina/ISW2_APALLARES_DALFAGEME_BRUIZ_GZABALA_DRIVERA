@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    Edit Review
+{% endblock title %}
+
+{% block content %}
+    <h1>Edit Review</h1>
+
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="mb-3">
+            <label for="rating" class="form-label">Rating (1–5)</label>
+            <input type="number"
+                   id="rating"
+                   name="rating"
+                   class="form-control"
+                   min="1"
+                   max="5"
+                   value="{{ review.rating }}">
+        </div>
+
+        <div class="mb-3">
+            <label for="title" class="form-label">Title</label>
+            <input type="text"
+                   id="title"
+                   name="title"
+                   class="form-control"
+                   value="{{ review.title }}">
+        </div>
+
+        <div class="mb-3">
+            <label for="comment" class="form-label">Comment</label>
+            <textarea id="comment"
+                      name="comment"
+                      class="form-control"
+                      rows="4">{{ review.comment }}</textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Save changes</button>
+    </form>
+{% endblock content %}
