@@ -5,14 +5,27 @@ from django.views import generic
 from django.contrib.messages.views import SuccessMessageMixin
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseForbidden
-from django.db.models import Avg
+from django.db.models import Avg, Count
 
 from .forms import ReviewForm
 from .email_service import send_info_request_email
 
 
 def index(request):
-    return render(request, 'index.html')
+    # Mostrar top-10 destinos por popularidad
+    top_destinations = (
+        models.Destination.objects
+        .annotate(
+            reviews_count=Count('reviews'),
+            avg_rating=Avg('reviews__rating'),
+        )
+        .annotate(
+            popularity_score=models.popularity_score_expression()
+        )
+        .order_by('-popularity_score')[:10]
+    )
+
+    return render(request, 'index.html', {'destinations': top_destinations})
 
 
 def about(request):
@@ -20,7 +33,19 @@ def about(request):
 
 
 def destinations(request):
-    all_destinations = models.Destination.objects.all()
+    # Listado completo de destinos ordenado por popularidad
+    all_destinations = (
+        models.Destination.objects
+        .annotate(
+            reviews_count=Count('reviews'),
+            avg_rating=Avg('reviews__rating'),
+        )
+        .annotate(
+            popularity_score=models.popularity_score_expression()
+        )
+        .order_by('-popularity_score')
+    )
+
     return render(request, 'destinations.html', {'destinations': all_destinations})
 
 
