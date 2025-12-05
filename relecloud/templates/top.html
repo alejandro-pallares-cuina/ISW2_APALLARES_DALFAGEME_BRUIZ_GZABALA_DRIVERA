@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}
+Relecloud
+{% endblock title %}
+
+{% block content %}
+{% if destinations %}
+    <h1>Top destinations</h1>
+    <ul class="list-group">
+        {% for destination in destinations %}
+            <a class="list-group-item list-group-item-action" href="{% url 'destination_detail' destination.id %}">
+                {{ forloop.counter }}. {{ destination.name }}
+                {% if destination.popularity_score is not None %}
+                    - {{ destination.popularity_score|floatformat:2 }}
+                {% endif %}
+            </a>
+        {% endfor %}
+    </ul>
+{% endif %}
+{% endblock content %}
