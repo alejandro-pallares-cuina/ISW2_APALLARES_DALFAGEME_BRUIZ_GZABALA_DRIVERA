@@ -32,8 +32,14 @@ CSRF_TRUSTED_ORIGINS = [
     "https://relecloudpallas-btdha4e6e5epcfea.spaincentral-01.azurewebsites.net",
 ]
 
-# Email backend configuration: use console for dev (prints to stdout), override with @override_settings in tests
-EMAIL_BACKEND = os.getenv('EMAIL_BACKEND', 'django.core.mail.backends.console.EmailBackend')
+# Email configuration - Gmail SMTP for sending real emails
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'is2prueba67@gmail.com'
+EMAIL_HOST_PASSWORD = '1234asdf@'
+DEFAULT_FROM_EMAIL = 'is2prueba67@gmail.com'
 
 # Application definition
 
