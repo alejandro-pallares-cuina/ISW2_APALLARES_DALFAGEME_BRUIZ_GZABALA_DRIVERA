@@ -31,7 +31,7 @@ class Destination(models.Model):
 
 def popularity_score_expression(reviews_count_field='reviews_count', avg_rating_field='avg_rating'):
     """
-    Devuelve una ExpressionWrapper que calcula la métrica de popularidad:
+    Devuelve una ExpressionWrapper que calcula métrica de popularidad:
     popularity = reviews_count * 0.6 + avg_rating * 0.4
 
     Se usa con `annotate(reviews_count=Count('reviews'), avg_rating=Avg('reviews__rating'))`
@@ -41,6 +41,7 @@ def popularity_score_expression(reviews_count_field='reviews_count', avg_rating_
         F(reviews_count_field) * Value(0.6) + Coalesce(F(avg_rating_field), Value(0.0)) * Value(0.4),
         output_field=FloatField()
     )
+
 
 
 class Cruise(models.Model):
