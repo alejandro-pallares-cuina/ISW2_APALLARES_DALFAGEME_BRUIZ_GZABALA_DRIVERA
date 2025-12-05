@@ -1,4 +1,6 @@
 from django.db import models
+from django.db.models import F, Value, FloatField, ExpressionWrapper
+from django.db.models.functions import Coalesce
 from django.conf import settings
 from django.core.validators import MinValueValidator, MaxValueValidator
 
@@ -25,6 +27,20 @@ class Destination(models.Model):
 
     def __str__(self):
         return self.name
+
+
+def popularity_score_expression(reviews_count_field='reviews_count', avg_rating_field='avg_rating'):
+    """
+    Devuelve una ExpressionWrapper que calcula la métrica de popularidad:
+    popularity = reviews_count * 0.6 + avg_rating * 0.4
+
+    Se usa con `annotate(reviews_count=Count('reviews'), avg_rating=Avg('reviews__rating'))`
+    y luego `annotate(popularity_score=popularity_score_expression())`.
+    """
+    return ExpressionWrapper(
+        F(reviews_count_field) * Value(0.6) + Coalesce(F(avg_rating_field), Value(0.0)) * Value(0.4),
+        output_field=FloatField()
+    )
 
 
 class Cruise(models.Model):
