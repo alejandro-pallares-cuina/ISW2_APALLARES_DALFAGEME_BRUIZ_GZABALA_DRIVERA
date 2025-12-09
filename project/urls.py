@@ -27,5 +27,6 @@ urlpatterns = [
     path('', include('relecloud.urls')) #si el request va vacío, redirige al urls.py de recloud y allí vuelve a redirigir.
 ]
 
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+# Servir archivos media en desarrollo Y producci\u00f3n
+# Nota: en producci\u00f3n real con mucho tr\u00e1fico, es mejor usar Azure Blob Storage o CDN
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
