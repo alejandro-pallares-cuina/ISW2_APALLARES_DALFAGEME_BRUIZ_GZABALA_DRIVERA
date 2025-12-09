@@ -1,9 +1,12 @@
 from django.urls import path
+from django.conf import settings
+from django.conf.urls.static import static
 from . import views
 
 urlpatterns = [
     path('', views.index, name='index'),
     path('about', views.about, name='about'),
+    path('top/', views.top, name='top'),
     path('destinations/', views.destinations, name='destinations'),
     path('destination/<int:pk>', views.DestinationDetailView.as_view(), name='destination_detail'),
     path('cruise/<int:pk>', views.CruiseDetailView.as_view(), name='cruise_detail'),
