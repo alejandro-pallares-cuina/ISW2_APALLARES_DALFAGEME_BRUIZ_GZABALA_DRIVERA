@@ -32,6 +32,23 @@ def about(request):
     return render(request, 'about.html')
 
 
+def top(request):
+    # Top 10 destinos por popularidad
+    top_destinations = (
+        models.Destination.objects
+        .annotate(
+            reviews_count=Count('reviews'),
+            avg_rating=Avg('reviews__rating'),
+        )
+        .annotate(
+            popularity_score=models.popularity_score_expression()
+        )
+        .order_by('-popularity_score')[:10]
+    )
+
+    return render(request, 'top.html', {'destinations': top_destinations})
+
+
 def destinations(request):
     # Listado completo de destinos ordenado por popularidad
     all_destinations = (
