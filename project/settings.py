@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     "relecloud.apps.RelecloudConfig",
     "crispy_forms",
     "crispy_bootstrap4",
+    "storages",
 ]
 
 MIDDLEWARE = [
@@ -155,6 +156,25 @@ CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap4"
 CRISPY_TEMPLATE_PACK = "bootstrap4"
 
 # Media files settings
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+#MEDIA_URL = '/media/'
+#MEDIA_ROOT = BASE_DIR / 'media'
+if DEBUG:
+    MEDIA_URL = "/media/"
+    MEDIA_ROOT = BASE_DIR / "media"
+else:
+    # Azure Blob Storage for media files
+    AZURE_ACCOUNT_NAME = os.environ.get("AZURE_STORAGE_ACCOUNT_NAME", "")
+    AZURE_ACCOUNT_KEY = os.environ.get("AZURE_STORAGE_ACCOUNT_KEY", "")
+    AZURE_CUSTOM_DOMAIN = f"{AZURE_ACCOUNT_NAME}.blob.core.windows.net" if AZURE_ACCOUNT_NAME else ""
+
+    DEFAULT_FILE_STORAGE = "storages.backends.azure_storage.AzureStorage"
+    AZURE_CONTAINER = "media"
+    AZURE_OVERWRITE_FILES = False
+
+    if AZURE_ACCOUNT_NAME and AZURE_ACCOUNT_KEY:
+        MEDIA_URL = f"https://{AZURE_CUSTOM_DOMAIN}/{AZURE_CONTAINER}/"
+    else:
+        # Fallback to local (not recommended in production)
+        MEDIA_URL = "/media/"
+        MEDIA_ROOT = BASE_DIR / "media"
 
